@@ -8,15 +8,10 @@ public class BackgroundScript : MonoBehaviour {
 
 	private int bgIndex1 = 0 ;
 	private int bgIndex2 = 1 ;
-	private float maxTarget = -1000.0f ;
 	private Transform[] layers ;
-	private Vector3 targetPos ;
-	private Vector3 velocity = Vector3.zero ;
-
 
 	void Start()
 	{
-		targetPos = new Vector3 (0.0f, maxTarget, 0.0f) ;
 		layers = new Transform[transform.childCount] ;
 
 		for (int i = 0; i < transform.childCount; i++)
@@ -29,13 +24,15 @@ public class BackgroundScript : MonoBehaviour {
 		if (!IsSpriteOnScreen (layers [bgIndex1].position) || !IsSpriteOnScreen (layers [bgIndex2].position))
 			RepeatBG () ;
 		
-		StartCoroutine (Scroll (targetPos, GameManagerScript.instance.scrollSpeed)) ;
+		StartCoroutine (Scroll (GameManagerScript.instance.targetPos, GameManagerScript.instance.bgSpeedModifier)) ;
 	}
 
 	private IEnumerator Scroll(Vector3 target, float speed)
 	{
-		//transform.localPosition = Vector3.MoveTowards (transform.localPosition, target, Time.smoothDeltaTime * speed) ;
-		transform.localPosition = Vector3.SmoothDamp (transform.localPosition, target, ref velocity, 0.4f, 1.0f, Time.deltaTime * GameManagerScript.instance.scrollSpeed) ;
+		foreach (Transform t in layers) 
+		{
+			t.localPosition = Vector3.SmoothDamp (t.localPosition, target, ref GameManagerScript.instance.velocity, 0.4f, 1.0f, Time.deltaTime * GameManagerScript.instance.bgSpeedModifier) ;
+		}
 		yield return null ;
 	}
 
@@ -51,10 +48,10 @@ public class BackgroundScript : MonoBehaviour {
 
 	private void RepeatBG()
 	{
-		if (layers[bgIndex1].position.y < layers[bgIndex2].position.y) 
+		if (layers [bgIndex1].position.y < layers [bgIndex2].position.y)
 			layers [bgIndex1].position = new Vector3 (0.0f, layers [bgIndex2].position.y + backGroundSize, 0.0f);
 		else
-			layers [bgIndex2].position = new Vector3 (0.0f, layers [bgIndex1].position.y + backGroundSize, 0.0f);
+ 			layers [bgIndex2].position = new Vector3 (0.0f, layers [bgIndex1].position.y + backGroundSize, 0.0f);
 	}
 
 }
